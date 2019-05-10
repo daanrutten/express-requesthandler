@@ -30,7 +30,7 @@ export class Routes {
 
     // This is an example of how to use the previous middleware function
     @Get(ParamsType.QUERY)
-    static someRoute3(user: string): string {
+    static someRoute4(user: string): string {
         // The parameter user should now be "userId"
     }
 }

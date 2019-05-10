@@ -44,7 +44,7 @@ export const Request = (type: RequestType, paramsType: ParamsType, middleware?: 
             args = args.map(arg => ({ key: arg.key.toLowerCase(), type: arg.type }));
         }
 
-        target.router[type]("/" + key, (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        target.router[type]("/" + (type != RequestType.USE ? key : ""), (req: express.Request, res: express.Response, next: express.NextFunction) => {
             // Determine params
             const params = req[paramsType];
             let respond = true;
@@ -87,6 +87,11 @@ export const Request = (type: RequestType, paramsType: ParamsType, middleware?: 
                                         params[arg.key] = new ObjectID(params[arg.key]);
                                         break;
 
+                                    case Date:
+                                        params[arg.key] = new Date(params[arg.key]);
+                                        assert(!isNaN(params[arg.key].getTime()), `Parameter ${arg} should be a Date`);
+                                        break;
+
                                     case Array:
                                         assert(params[arg.key] instanceof Array, `Parameter ${arg} should be an array`);
                                         break;
@@ -94,7 +99,7 @@ export const Request = (type: RequestType, paramsType: ParamsType, middleware?: 
 
                                 argValues.push(params[arg.key]);
                             } else {
-                                assert.fail(`Parameter ${arg} is missing`);
+                                assert.fail(`Parameter ${arg.key} is missing in ` + key);
                             }
                         } catch (e) {
                             res.status(400).json({ error: e.message });

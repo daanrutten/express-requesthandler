@@ -1,4 +1,4 @@
-The example below shows how to use this package in a class. It is advised to create a separate file for each set of routes and export the routes as shown below. Supported types for parameters are string, number, boolean and ObjectID which means these types will automatically be type-checked. For more complex types, the type of the parameter cannot be assumed and should be checked manually.
+The example below shows how to use this package in a class. It is advised to create a separate file for each set of routes and export the routes as shown below. Supported types for parameters are string, number, boolean, ObjectID and Date which means these types will automatically be type-checked. For more complex types, the type of the parameter cannot be assumed and should be checked manually.
 
 ```typescript
 import express from "express";

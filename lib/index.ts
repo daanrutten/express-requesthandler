@@ -1,7 +1,7 @@
 import assert from "assert";
 import { ObjectID } from "bson";
 import express from "express";
-import 'reflect-metadata'
+import "reflect-metadata";
 
 export enum RequestType {
     GET = "get",
@@ -31,7 +31,7 @@ function functionParameters(target: any, key: string): { key: string, type: any 
 }
 
 export const Request = (type: RequestType, paramsType: ParamsType, middleware?: string) => {
-    return function (target: any, key: string): void {
+    return (target: any, key: string) => {
         // Create the class-scoped router if it does not exist
         if (!target.router) {
             target.router = express.Router();
@@ -40,11 +40,11 @@ export const Request = (type: RequestType, paramsType: ParamsType, middleware?: 
         // Extract the arguments from the function
         let args = functionParameters(target, key);
 
-        if (paramsType == ParamsType.HEADERS) {
+        if (paramsType === ParamsType.HEADERS) {
             args = args.map(arg => ({ key: arg.key.toLowerCase(), type: arg.type }));
         }
 
-        target.router[type]("/" + (type != RequestType.USE ? key : ""), (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        target.router[type]("/" + (type !== RequestType.USE ? key : ""), (req: express.Request, res: express.Response, next: express.NextFunction) => {
             // Determine params
             const params = req[paramsType];
             let respond = true;
@@ -70,7 +70,7 @@ export const Request = (type: RequestType, paramsType: ParamsType, middleware?: 
                             } else if (arg.key in params) {
                                 switch (arg.type) {
                                     case String:
-                                        assert(typeof params[arg.key] == "string", `Parameter ${arg} should be a string`);
+                                        assert(typeof params[arg.key] === "string", `Parameter ${arg} should be a string`);
                                         break;
 
                                     case Number:
@@ -110,7 +110,7 @@ export const Request = (type: RequestType, paramsType: ParamsType, middleware?: 
             }
 
             // Execute function
-            const result = new Promise(resolve => resolve(target[key](...argValues)));
+            const result = new Promise(resolve => resolve(target[key].call(target, ...argValues)));
 
             // Send result to user
             result.then(doc => {

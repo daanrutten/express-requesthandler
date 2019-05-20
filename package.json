@@ -1,6 +1,6 @@
 {
   "name": "@gamesolutionslab/requesthandler",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Allows creating express routes automatically from class methods using decorators",
   "scripts": {
     "build": "tsc"

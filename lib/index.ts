@@ -93,6 +93,14 @@ export const Request = (type: RequestType, paramsType: ParamsType, middleware?: 
                                         break;
 
                                     case Array:
+                                        if (typeof params[arg.key] === "string") {
+                                            try {
+                                                params[arg.key] = JSON.parse(params[arg.key]);
+                                            } catch (e) {
+                                                params[arg.key] = "";
+                                            }
+                                        }
+
                                         assert(params[arg.key] instanceof Array, `Parameter ${arg} should be an array`);
                                         break;
                                 }

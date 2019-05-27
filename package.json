@@ -1,5 +1,5 @@
 {
-  "name": "requesthandler",
+  "name": "express-requesthandler",
   "version": "0.0.4",
   "description": "Allows creating express routes automatically from class methods using decorators",
   "scripts": {

@@ -1,5 +1,5 @@
 {
-  "name": "@gamesolutionslab/requesthandler",
+  "name": "requesthandler",
   "version": "0.0.4",
   "description": "Allows creating express routes automatically from class methods using decorators",
   "scripts": {
@@ -9,7 +9,7 @@
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/daanrutten/gsl-requesthandler.git"
+    "url": "git+https://github.com/daanrutten/requesthandler.git"
   },
   "keywords": [
     "request",
@@ -20,9 +20,9 @@
   "author": "Daan Rutten",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/daanrutten/gsl-requesthandler/issues"
+    "url": "https://github.com/daanrutten/requesthandler/issues"
   },
-  "homepage": "https://github.com/daanrutten/gsl-requesthandler#readme",
+  "homepage": "https://github.com/daanrutten/requesthandler#readme",
   "dependencies": {
     "bson": "^4.0.2",
     "express": "^4.17.0",

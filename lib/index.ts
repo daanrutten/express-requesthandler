@@ -1,6 +1,6 @@
 import assert from "assert";
 import { ObjectID } from "bson";
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import "reflect-metadata";
 
 export enum RequestType {
@@ -15,36 +15,36 @@ export enum ParamsType {
     HEADERS = "headers"
 }
 
-export const Get = (paramsType: ParamsType, middleware?: string) => Request(RequestType.GET, paramsType, middleware);
-export const Post = (paramsType: ParamsType, middleware?: string) => Request(RequestType.POST, paramsType, middleware);
-export const Use = (paramsType: ParamsType, middleware?: string) => Request(RequestType.USE, paramsType, middleware);
+export const get = (paramsType: ParamsType, middleware?: string) => request(RequestType.GET, paramsType, middleware);
+export const post = (paramsType: ParamsType, middleware?: string) => request(RequestType.POST, paramsType, middleware);
+export const use = (paramsType: ParamsType, middleware?: string) => request(RequestType.USE, paramsType, middleware);
 
-function functionParameters(target: any, key: string): { key: string, type: any }[] {
-    const fstr = target[key].toString();
+function functionParameters(target: any, method: string): { key: string, type: any }[] {
+    const fstr = target[method].toString() as string;
 
     // Extract arguments from string representation of function
-    const args = fstr.slice(fstr.indexOf("(") + 1, fstr.indexOf(")")).match(/[^\s,]+/g) as string[];
-    const types = Reflect.getMetadata("design:paramtypes", target, key);
+    const args = fstr.slice(fstr.indexOf("(") + 1, fstr.lastIndexOf(")")).match(/[^\s,]+/g)!;
+    const types = Reflect.getMetadata("design:paramtypes", target, method);
 
     // Return arguments with their types
     return args.map((key, i) => ({ key, type: types[i] }));
 }
 
-export const Request = (type: RequestType, paramsType: ParamsType, middleware?: string) => {
-    return (target: any, key: string) => {
+export const request = (type: RequestType, paramsType: ParamsType, middleware?: string) => {
+    return (target: any, method: string, desc: PropertyDescriptor) => {
         // Create the class-scoped router if it does not exist
         if (!target.router) {
             target.router = express.Router();
         }
 
         // Extract the arguments from the function
-        let args = functionParameters(target, key);
+        const args = functionParameters(target, method);
 
         if (paramsType === ParamsType.HEADERS) {
-            args = args.map(arg => ({ key: arg.key.toLowerCase(), type: arg.type }));
+            args.forEach(arg => arg.key = arg.key.toLowerCase());
         }
 
-        target.router[type]("/" + (type !== RequestType.USE ? key : ""), (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        target.router[type]("/" + (type !== RequestType.USE ? method : ""), (req: Request, res: Response, next: NextFunction) => {
             // Determine params
             const params = req[paramsType];
             let respond = true;
@@ -79,6 +79,7 @@ export const Request = (type: RequestType, paramsType: ParamsType, middleware?: 
                                         break;
 
                                     case Boolean:
+                                        // tslint:disable-next-line: triple-equals
                                         params[arg.key] = params[arg.key] == 1;
                                         break;
 
@@ -107,7 +108,7 @@ export const Request = (type: RequestType, paramsType: ParamsType, middleware?: 
 
                                 argValues.push(params[arg.key]);
                             } else {
-                                assert.fail(`Parameter ${arg.key} is missing in ` + key);
+                                assert.fail(`Parameter ${arg.key} is missing in ` + method);
                             }
                         } catch (e) {
                             res.status(400).json({ error: e.message });
@@ -118,7 +119,7 @@ export const Request = (type: RequestType, paramsType: ParamsType, middleware?: 
             }
 
             // Execute function
-            const result = new Promise(resolve => resolve(target[key].call(target, ...argValues)));
+            const result = new Promise(resolve => resolve(desc.value.call(target, ...argValues)));
 
             // Send result to user
             result.then(doc => {

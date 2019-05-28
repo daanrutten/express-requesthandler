@@ -70,11 +70,11 @@ export const request = (type: RequestType, paramsType: ParamsType, middleware?: 
                             } else if (arg.key in params) {
                                 switch (arg.type) {
                                     case String:
-                                        assert(typeof params[arg.key] === "string", `Parameter ${arg} should be a string`);
+                                        assert(typeof params[arg.key] === "string", `Parameter ${arg.key} should be a string`);
                                         break;
 
                                     case Number:
-                                        assert(!isNaN(params[arg.key]), `Parameter ${arg} should be a number`);
+                                        assert(!isNaN(params[arg.key]), `Parameter ${arg.key} should be a number`);
                                         params[arg.key] = +params[arg.key];
                                         break;
 
@@ -84,13 +84,13 @@ export const request = (type: RequestType, paramsType: ParamsType, middleware?: 
                                         break;
 
                                     case ObjectID:
-                                        assert(ObjectID.isValid(params[arg.key]), `Parameter ${arg} should be an ObjectID`);
+                                        assert(ObjectID.isValid(params[arg.key]), `Parameter ${arg.key} should be an ObjectID`);
                                         params[arg.key] = new ObjectID(params[arg.key]);
                                         break;
 
                                     case Date:
                                         params[arg.key] = new Date(params[arg.key]);
-                                        assert(!isNaN(params[arg.key].getTime()), `Parameter ${arg} should be a Date`);
+                                        assert(!isNaN(params[arg.key].getTime()), `Parameter ${arg.key} should be a Date`);
                                         break;
 
                                     case Array:
@@ -102,7 +102,7 @@ export const request = (type: RequestType, paramsType: ParamsType, middleware?: 
                                             }
                                         }
 
-                                        assert(params[arg.key] instanceof Array, `Parameter ${arg} should be an array`);
+                                        assert(params[arg.key] instanceof Array, `Parameter ${arg.key} should be an array`);
                                         break;
                                 }
 

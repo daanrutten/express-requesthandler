@@ -3,7 +3,7 @@ The example below shows how to use this package in a class. It is advised to cre
 ```typescript
 import express from "express";
 
-import { get, ParamsType, post, use } from "requesthandler";
+import { get, ParamsType, post, use } from "express-requesthandler";
 
 export class Routes {
     // The router which will be populated by the generated routes

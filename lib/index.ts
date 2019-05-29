@@ -19,8 +19,8 @@ export const get = (paramsType: ParamsType, middleware?: string) => request(Requ
 export const post = (paramsType: ParamsType, middleware?: string) => request(RequestType.POST, paramsType, middleware);
 export const use = (paramsType: ParamsType, middleware?: string) => request(RequestType.USE, paramsType, middleware);
 
-function functionParameters(target: any, method: string): { key: string, type: any }[] {
-    const fstr = target[method].toString() as string;
+function functionParameters(target: any, method: string, desc: PropertyDescriptor): { key: string, type: any }[] {
+    const fstr = desc.value.toString() as string;
 
     // Extract arguments from string representation of function
     const args = fstr.slice(fstr.indexOf("(") + 1, fstr.lastIndexOf(")")).match(/[^\s,]+/g)!;
@@ -38,7 +38,7 @@ export const request = (type: RequestType, paramsType: ParamsType, middleware?: 
         }
 
         // Extract the arguments from the function
-        const args = functionParameters(target, method);
+        const args = functionParameters(target, method, desc);
 
         if (paramsType === ParamsType.HEADERS) {
             args.forEach(arg => arg.key = arg.key.toLowerCase());

@@ -3,33 +3,33 @@ The example below shows how to use this package in a class. It is advised to cre
 ```typescript
 import express from "express";
 
-import { get, ParamsType, post, use } from "express-requesthandler";
+import { get, post, use } from "express-requesthandler";
 
 export class Routes {
     // The router which will be populated by the generated routes
-    public static router: express.Router;
+    public static router: express.Router = express.Router();
 
     // This is a GET route which gets its parameters from the query parameters
-    @get(ParamsType.QUERY)
+    @get()
     public static someRoute1(param1: string, param2: number): void {
 
     }
 
-    // This is a POST route which gets its parameters from the body
-    @post(ParamsType.BODY)
+    // This is a POST route which gets its parameters from either the query parameters or the body
+    @post()
     public static someRoute2(param1: string, param2: number): void {
 
     }
 
-    // This is a middleware route which gets its parameters from the headers
+    // This is a middleware route
     // The return value of this route will be available in the next route under the identifier "user"
-    @use(ParamsType.HEADERS, "user")
+    @use("user")
     public static someRoute3(param1: string, param2: number): string {
         return "userId";
     }
 
     // This is an example of how to use the previous middleware function
-    @get(ParamsType.QUERY)
+    @get()
     public static someRoute4(user: string): void {
         // The parameter user should now be "userId"
     }

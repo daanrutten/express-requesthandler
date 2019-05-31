@@ -1,56 +1,30 @@
 import assert from "assert";
 import { ObjectID } from "bson";
-import express, { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import "reflect-metadata";
 
-export enum RequestType {
-    GET = "get",
-    POST = "post",
-    USE = "use"
-}
+export const get = (middleware?: string) => request("get", middleware);
+export const post = (middleware?: string) => request("post", middleware);
+export const use = (middleware?: string) => request("use", middleware);
 
-export enum ParamsType {
-    QUERY = "query",
-    BODY = "body",
-    HEADERS = "headers"
-}
-
-export const get = (paramsType: ParamsType, middleware?: string) => request(RequestType.GET, paramsType, middleware);
-export const post = (paramsType: ParamsType, middleware?: string) => request(RequestType.POST, paramsType, middleware);
-export const use = (paramsType: ParamsType, middleware?: string) => request(RequestType.USE, paramsType, middleware);
-
-function functionParameters(target: any, method: string, desc: PropertyDescriptor): { key: string, type: any }[] {
-    const fstr = desc.value.toString() as string;
-
-    // Extract arguments from string representation of function
-    const args = fstr.slice(fstr.indexOf("(") + 1, fstr.lastIndexOf(")")).match(/[^\s,]+/g)!;
-    const types = Reflect.getMetadata("design:paramtypes", target, method);
-
-    // Return arguments with their types
-    return args.map((key, i) => ({ key, type: types[i] }));
-}
-
-export const request = (type: RequestType, paramsType: ParamsType, middleware?: string) => {
+export const request = (type: "get" | "post" | "use", middleware?: string) => {
     return (target: any, method: string, desc: PropertyDescriptor) => {
-        // Create the class-scoped router if it does not exist
-        if (!target.router) {
-            target.router = express.Router();
+        if (!(target.router instanceof Router)) {
+            throw new Error("The class should have a static router variable");
         }
 
         // Extract the arguments from the function
-        const args = functionParameters(target, method, desc);
+        const fstr = desc.value.toString() as string;
 
-        if (paramsType === ParamsType.HEADERS) {
-            args.forEach(arg => arg.key = arg.key.toLowerCase());
-        }
+        // Extract arguments from string representation of function
+        const argKeys = fstr.slice(fstr.indexOf("(") + 1, fstr.lastIndexOf(")")).match(/[^\s,]+/g)!;
+        const argTypes = Reflect.getMetadata("design:paramtypes", target, method);
+        const args = argKeys.map((key, i) => ({ key, type: argTypes[i] }));
 
-        target.router[type]("/" + (type !== RequestType.USE ? method : ""), (req: Request, res: Response, next: NextFunction) => {
-            // Determine params
-            const params = req[paramsType];
-            let respond = true;
-
+        target.router[type]("/" + (type !== "use" ? method : ""), (req: Request, res: Response, next: NextFunction) => {
             // Extract arguments from params
             const argValues: any[] = [];
+            let respond = true;
 
             for (const arg of args) {
                 switch (arg.key) {
@@ -67,46 +41,48 @@ export const request = (type: RequestType, paramsType: ParamsType, middleware?: 
                         try {
                             if (arg.key in res.locals) {
                                 argValues.push(res.locals[arg.key]);
-                            } else if (arg.key in params) {
+                            } else if (arg.key in req.query || arg.key in req.body || arg.key.toLowerCase() in req.headers) {
+                                let param = arg.key in req.query ? req.query[arg.key] : (arg.key in req.body ? req.body[arg.key] : req.headers[arg.key.toLowerCase()]);
+
                                 switch (arg.type) {
                                     case String:
-                                        assert(typeof params[arg.key] === "string", `Parameter ${arg.key} should be a string`);
+                                        assert(typeof param === "string", `Parameter ${arg.key} should be a string`);
                                         break;
 
                                     case Number:
-                                        assert(!isNaN(params[arg.key]), `Parameter ${arg.key} should be a number`);
-                                        params[arg.key] = +params[arg.key];
+                                        assert(!isNaN(param), `Parameter ${arg.key} should be a number`);
+                                        param = +param;
                                         break;
 
                                     case Boolean:
                                         // tslint:disable-next-line: triple-equals
-                                        params[arg.key] = params[arg.key] == 1;
+                                        param = param == 1;
                                         break;
 
                                     case ObjectID:
-                                        assert(ObjectID.isValid(params[arg.key]), `Parameter ${arg.key} should be an ObjectID`);
-                                        params[arg.key] = new ObjectID(params[arg.key]);
+                                        assert(ObjectID.isValid(param), `Parameter ${arg.key} should be an ObjectID`);
+                                        param = new ObjectID(param);
                                         break;
 
                                     case Date:
-                                        params[arg.key] = new Date(params[arg.key]);
-                                        assert(!isNaN(params[arg.key].getTime()), `Parameter ${arg.key} should be a Date`);
+                                        param = new Date(param);
+                                        assert(!isNaN(param.getTime()), `Parameter ${arg.key} should be a Date`);
                                         break;
 
                                     case Array:
-                                        if (typeof params[arg.key] === "string") {
+                                        if (typeof param === "string") {
                                             try {
-                                                params[arg.key] = JSON.parse(params[arg.key]);
+                                                param = JSON.parse(param);
                                             } catch (e) {
-                                                params[arg.key] = "";
+                                                param = "";
                                             }
                                         }
 
-                                        assert(params[arg.key] instanceof Array, `Parameter ${arg.key} should be an array`);
+                                        assert(param instanceof Array, `Parameter ${arg.key} should be an array`);
                                         break;
                                 }
 
-                                argValues.push(params[arg.key]);
+                                argValues.push(param);
                             } else {
                                 assert.fail(`Parameter ${arg.key} is missing in ` + method);
                             }

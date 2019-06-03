@@ -9,7 +9,7 @@ export const use = (middleware?: string) => request("use", middleware);
 
 export const request = (type: "get" | "post" | "use", middleware?: string) => {
     return (target: any, method: string, desc: PropertyDescriptor) => {
-        if (!(target.router instanceof Router)) {
+        if (!target.router) {
             throw new Error("The class should have a static router variable");
         }
 

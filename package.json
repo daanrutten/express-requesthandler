@@ -1,6 +1,6 @@
 {
   "name": "express-requesthandler",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Allows creating express routes automatically from class methods using decorators",
   "scripts": {
     "build": "tsc"

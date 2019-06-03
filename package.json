@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/daanrutten/requesthandler#readme",
   "dependencies": {
-    "bson": "^4.0.2",
+    "bson": ">=1.1.1",
     "express": "^4.17.0",
     "reflect-metadata": "^0.1.13"
   },

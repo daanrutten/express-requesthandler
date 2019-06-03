@@ -1,6 +1,6 @@
 import assert from "assert";
 import { ObjectID } from "bson";
-import { NextFunction, Request, Response, Router } from "express";
+import { NextFunction, Request, Response } from "express";
 import "reflect-metadata";
 
 export const get = (middleware?: string) => request("get", middleware);
@@ -17,7 +17,7 @@ export const request = (type: "get" | "post" | "use", middleware?: string) => {
         const fstr = desc.value.toString() as string;
 
         // Extract arguments from string representation of function
-        const argKeys = fstr.slice(fstr.indexOf("(") + 1, fstr.lastIndexOf(")")).match(/[^\s,]+/g)!;
+        const argKeys = fstr.slice(fstr.indexOf("(") + 1, fstr.indexOf(")")).match(/[^\s,]+/g)!;
         const argTypes = Reflect.getMetadata("design:paramtypes", target, method);
         const args = argKeys.map((key, i) => ({ key, type: argTypes[i] }));
 

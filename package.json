@@ -25,7 +25,6 @@
   "homepage": "https://github.com/daanrutten/express-requesthandler#readme",
   "dependencies": {
     "bson": ">=1.1.1",
-    "express": "^4.17.0",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {

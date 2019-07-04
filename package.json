@@ -9,7 +9,7 @@
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/daanrutten/requesthandler.git"
+    "url": "git+https://github.com/daanrutten/express-requesthandler.git"
   },
   "keywords": [
     "request",
@@ -20,9 +20,9 @@
   "author": "Daan Rutten",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/daanrutten/requesthandler/issues"
+    "url": "https://github.com/daanrutten/express-requesthandler/issues"
   },
-  "homepage": "https://github.com/daanrutten/requesthandler#readme",
+  "homepage": "https://github.com/daanrutten/express-requesthandler#readme",
   "dependencies": {
     "bson": ">=1.1.1",
     "express": "^4.17.0",

@@ -3,11 +3,11 @@ import { ObjectID } from "bson";
 import { NextFunction, Request, Response } from "express";
 import "reflect-metadata";
 
-export const get = (middleware?: string) => request("get", middleware);
-export const post = (middleware?: string) => request("post", middleware);
-export const use = (middleware?: string) => request("use", middleware);
+export const get = (middleware?: boolean) => request("get", middleware);
+export const post = (middleware?: boolean) => request("post", middleware);
+export const use = (middleware?: boolean) => request("use", middleware);
 
-export const request = (type: "get" | "post" | "use", middleware?: string) => {
+export const request = (type: "get" | "post" | "use", middleware = false) => {
     return (target: any, method: string, desc: PropertyDescriptor) => {
         if (!target.router) {
             throw new Error("The class should have a static router variable");
@@ -98,10 +98,13 @@ export const request = (type: "get" | "post" | "use", middleware?: string) => {
             const result = new Promise(resolve => resolve(desc.value.call(target, ...argValues)));
 
             // Send result to user
-            result.then(doc => {
+            result.then((doc: any) => {
                 if (respond) {
                     if (middleware) {
-                        res.locals[middleware] = doc;
+                        for (const key in doc) {
+                            res.locals[key] = doc[key];
+                        }
+
                         next();
                     } else {
                         res.json(doc);

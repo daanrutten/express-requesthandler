@@ -23,9 +23,9 @@ export class Routes {
 
     // This is a middleware route
     // The return value of this route will be available in the next route under the identifier "user"
-    @use("user")
-    public static someRoute3(param1: string, param2: number): string {
-        return "userId";
+    @use(true)
+    public static someRoute3(param1: string, param2: number): { user: string } {
+        return { user: "userId" };
     }
 
     // This is an example of how to use the previous middleware function

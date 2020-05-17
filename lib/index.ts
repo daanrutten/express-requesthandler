@@ -39,10 +39,10 @@ export const request = (type: "get" | "post" | "use", middleware = false) => {
 
                     default:
                         try {
-                            if (arg.key in res.locals) {
+                            if (res.locals.hasOwnProperty(arg.key)) {
                                 argValues.push(res.locals[arg.key]);
-                            } else if (arg.key in req.query || arg.key in req.body || arg.key.toLowerCase() in req.headers) {
-                                let param = arg.key in req.query ? req.query[arg.key] : (arg.key in req.body ? req.body[arg.key] : req.headers[arg.key.toLowerCase()]);
+                            } else if (req.query.hasOwnProperty(arg.key) || req.body.hasOwnProperty(arg.key) || req.headers.hasOwnProperty(arg.key.toLowerCase())) {
+                                let param = req.query.hasOwnProperty(arg.key) ? req.query[arg.key] : (req.body.hasOwnProperty(arg.key) ? req.body[arg.key] : req.headers[arg.key.toLowerCase()]);
 
                                 switch (arg.type) {
                                     case String:
@@ -50,7 +50,7 @@ export const request = (type: "get" | "post" | "use", middleware = false) => {
                                         break;
 
                                     case Number:
-                                        assert(!isNaN(param), `Parameter ${arg.key} should be a number`);
+                                        assert(!isNaN(+param), `Parameter ${arg.key} should be a number`);
                                         param = +param;
                                         break;
 
@@ -110,7 +110,7 @@ export const request = (type: "get" | "post" | "use", middleware = false) => {
                         res.json(doc);
                     }
                 }
-            }, err => {
+            }, (err: any) => {
                 try {
                     res.status(500).json({ error: err.toString() });
                 } catch {

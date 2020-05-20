@@ -3,6 +3,12 @@ import { ObjectID } from "bson";
 import { NextFunction, Request, Response } from "express";
 import "reflect-metadata";
 
+export class ExpressError extends Error {
+    constructor(message?: string, public status?: number) {
+        super(message);
+    }
+}
+
 export const get = (middleware?: boolean) => request("get", middleware);
 export const post = (middleware?: boolean) => request("post", middleware);
 export const use = (middleware?: boolean) => request("use", middleware);
@@ -86,8 +92,8 @@ export const request = (type: "get" | "post" | "use", middleware = false) => {
                             } else {
                                 assert.fail(`Parameter ${arg.key} is missing in ` + method);
                             }
-                        } catch (e) {
-                            res.status(400).json({ error: e.message });
+                        } catch (err) {
+                            res.status(400).json({ error: err.message || err.toString() });
                             return;
                         }
                         break;
@@ -110,11 +116,11 @@ export const request = (type: "get" | "post" | "use", middleware = false) => {
                         res.json(doc);
                     }
                 }
-            }, (err: any) => {
+            }, (err: ExpressError) => {
                 try {
-                    res.status(500).json({ error: err.toString() });
+                    res.status(err.status ? err.status : 500).json({ error: err.message || err.toString() });
                 } catch {
-                    res.write(JSON.stringify({ error: err.toString() }));
+                    res.write(JSON.stringify({ error: err.message || err.toString() }));
                     res.end();
                 }
             });

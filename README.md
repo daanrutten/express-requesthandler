@@ -3,7 +3,7 @@ The example below shows how to use this package in a class. It is advised to cre
 ```typescript
 import express from "express";
 
-import { get, post, use } from "express-requesthandler";
+import { ExpressError, get, post, use } from "express-requesthandler";
 
 export class Routes {
     // The router which will be populated by the generated routes
@@ -12,7 +12,8 @@ export class Routes {
     // This is a GET route which gets its parameters from the query parameters
     @get()
     public static someRoute1(param1: string, param2: number): void {
-
+        // Throw an ExpressError to set the status code of the response
+        throw new ExpressError("Not found", 404);
     }
 
     // This is a POST route which gets its parameters from either the query parameters or the body

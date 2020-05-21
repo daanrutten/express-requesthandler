@@ -118,9 +118,9 @@ export const request = (type: "get" | "post" | "use", middleware = false) => {
                 }
             }, (err: ExpressError) => {
                 try {
-                    res.status(err.status ? err.status : 500).json({ error: err.message || err.toString() });
+                    res.status(err.status ? err.status : 500).json({ error: err.toString() });
                 } catch {
-                    res.write(JSON.stringify({ error: err.message || err.toString() }));
+                    res.write(JSON.stringify({ error: err.toString() }));
                     res.end();
                 }
             });

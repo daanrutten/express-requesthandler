@@ -1,5 +1,5 @@
 import assert from "assert";
-import { ObjectID } from "bson";
+import { ObjectId } from "bson";
 import { NextFunction, Request, Response } from "express";
 import "reflect-metadata";
 
@@ -65,9 +65,9 @@ export const request = (type: "get" | "post" | "use", middleware = false) => {
                                         param = param == 1;
                                         break;
 
-                                    case ObjectID:
-                                        assert(ObjectID.isValid(param), `Parameter ${arg.key} should be an ObjectID`);
-                                        param = new ObjectID(param);
+                                    case ObjectId:
+                                        assert(ObjectId.isValid(param), `Parameter ${arg.key} should be an ObjectId`);
+                                        param = new ObjectId(param);
                                         break;
 
                                     case Date:
@@ -92,7 +92,7 @@ export const request = (type: "get" | "post" | "use", middleware = false) => {
                             } else {
                                 assert.fail(`Parameter ${arg.key} is missing in ` + method);
                             }
-                        } catch (err) {
+                        } catch (err: any) {
                             res.status(400).json({ error: err.message || err.toString() });
                             return;
                         }
